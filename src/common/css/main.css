@@ -1,0 +1,33 @@
+
+body{
+  /* cursor: url("../../common/images/cursor.webp"),default; */
+  /* background:bg-color bg-image position/bg-size bg-repeat bg-origin bg-clip bg-attachment initial|inherit; */
+  /* background: #f1f2f6 url("../images/bej.png") no-repeat 0 0/ 100% 100%; */
+
+}
+#page_main{
+  width: 100%;
+  height: 100%;
+}
+#page_main .main_header{
+  line-height: 3rem;
+  border-bottom: 1px solid #dfe4ea;
+}
+/* .main_header .hea_center div,.main_header .hea_right div{
+  margin:0 1rem;
+} */
+
+.main_content{
+  text-align: center;
+  margin: 3rem 0 1rem 0;
+}
+/* .main_content > span {
+  
+} */
+
+.main_content .con_img > img{
+  margin-top: 5rem;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+}

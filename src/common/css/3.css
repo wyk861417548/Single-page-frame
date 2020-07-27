@@ -1,0 +1,16 @@
+#content{
+  position: relative;
+}
+#content .box{
+  float: left;
+  padding: 5px;
+}
+#content .box .box_img{
+  padding: 5px;
+  box-shadow: 0 0 5px #ccc;
+  border-radius:5px;
+}
+#content .box .box_img img{
+  width: 200px;
+  height: auto;
+}

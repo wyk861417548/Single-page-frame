@@ -1,0 +1,30 @@
+<div id="page_main">
+  <div class="main_header j_flex">
+    <div class="hea_left" style="flex:.5"></div>
+    <div class="hea_center j_flex" style="flex:.3">
+      <div class="j_hover">首页</div>
+      <div class="j_hover">个人日志</div>
+      <div class="j_hover">个人作品</div>
+      <div class="j_hover">留言</div>
+    </div>
+    <div class="hea_right" style="flex:.1">
+      <span class="j_hover">登录</span>/
+      <span class="j_hover">注册</span>
+    </div>
+  </div>
+  <div class="main_content">
+    <span style="color: #000;">关于我</span>
+    <div class="con_img">
+      <img src="./common/images/Ayakoji.jpg" alt="" title="我自己">
+    </div>
+  </div>
+  <!-- PageJump页面跳转方法 -->
+  <button onclick="KJ.PageJump(this)" data-url="2/2.html">点击跳转</button>
+</div>
+<script>
+  var App = {};
+  App.init = function(){
+    console.log("main.html页面");
+  }
+  App.init();
+</script>
