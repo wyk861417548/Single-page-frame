@@ -11,12 +11,20 @@ class Router {
   }
 
   Fnhashchange(el){  //监听hash值变化
-    this.currentHash  = location.hash.slice(1);
+    var value = location.hash.slice(1);
+
+    console.log("xxxxxxxxxxx",value);
+    if(value){
+      this.currentHash = sessionStorage[KJ.config.routeStorage]?KJ.FnJSON(sessionStorage[KJ.config.routeStorage])[value].url:"";
+    }else{
+      this.currentHash = KJ.config.u;
+    }
     
-    console.log("this.currentHashxxxxxxxxxxxxxx",this.currentHash);
+
     KJ.Fnpage(this.currentHash);
   }
 
+  
 
   //history路由模式
   listenerPopState(){

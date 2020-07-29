@@ -4,22 +4,28 @@
     config:{
       
       root:"",//文件路径
-      
-      page:"components/", //页面地址
 
-      u:"main/main.html",   //加载页面首页
+      App:"", 
       
-      common:"common/", //资源文件地址(js/css/images等)
+      page:"components/", //html页面目录
+
+      u:"main/main.html",   //初始页面
+      
+      common:"common/", //资源文件目录(js/css/images等)
 
       DomRoot:"root", //框架刷新dom的id
      
-      star:"app.js",  //项目初始化加载插件地址
+      star:"app.js",  //项目初始化加载插件文件
       
       appdom:document.createElement("div"), //生成最外层dom节点，页面切换就是往其中刷入页面
 
-      router:"",
+      router:"",      //初始化路由（hash/history）
 
-      mode:"hash"   //hash模式还是history模式
+      mode:"hash",   //hash模式还是history模式
+
+      count:0,       //hash值（随页面变化自增）
+
+      routeStorage:"routeStorage"  //sessionStorage存储页面路径名（url：页面路径 count:hash值）
     },
    
     cachevesion:"0.1", //js 版本缓存控制
@@ -59,10 +65,13 @@
       _this.Fnloadjs(url);
     },
    
-    Fnloadjs:function(url){  //加载js
+    Fnloadjs:function(url){  //加载js 1: 加载中 2:加载完成
       var _this = KJ;
-      if(!url && _this.jsCache[url] === 2)return;
+
+      if(_this.jsCache[url] === 1 || _this.jsCache[url] === 2)return;    //防止重复加载  
+
       var script = _this.Fncel("script");
+      _this.jsCache[url]=1;       
 
       script.onload = function(){//加载完成
         _this.jsCache[url]=2;
@@ -71,21 +80,21 @@
       
       script.src = url + (_this.cachevesion?"?v="+_this.cachevesion:"");
       document.body.appendChild(script);
-      console.log("url",url);
     },
   
-    Fnloadcss:function(url){   //加载css
+    Fnloadcss:function(url){   //加载css 1: 加载中 2:加载完成
       var _this = KJ;
-      // console.log("Fnloadcss",url);
-      // if(!url && _this.cssCache[url] === 2)return;
+
+      if(_this.cssCache[url] === 1 || _this.cssCache[url] === 2)return;
       var link = _this.Fncel("link");
+      _this.cssCache[url] = 1;
+
       link.onload = function(){  //加载完成
         _this.cssCache[url] = 2;
       }
 
       link.rel = "stylesheet";
       link.href = url;
-      // console.log("link",link);
       document.head.appendChild(link);
     },
     
@@ -194,14 +203,40 @@
       }
       loop();
     },
-    
+
     PageJump(el){  //页面跳转方法
       var _this = this;
-      var count = 1;
-      var data_url = el.getAttribute("data-url");
-      sessionStorage[data_url] = data_url;
-      // _this.hashCache[data_url] = data_url;
-      location.hash = data_url;
+      var routeStorage = _this.config.routeStorage;
+      var url = el.getAttribute("data-url");
+      _this.config.App= {url,count:_this.config.count};
+      //location.hash = url;
+      
+      _this.FnhashChange();
+      sessionStorage[routeStorage]?_this.config.count = _this.FnJSON(sessionStorage[routeStorage]).length-1:0;
+      // sessionStorage[routeStorage]?
+      location.hash = _this.config.count;
+
+      _this.config.count++; 
+      
+    },
+
+    FnJSON(el){  //处理字符串和对象互转
+      if(typeof el === "object"){
+        return JSON.stringify(el);
+      }
+      return JSON.parse(el);
+    },
+
+    FnhashChange(){
+      var _this = this,list = [];
+      var routeStorage = _this.config.routeStorage;
+      list.push(this.config.App);
+      console.log("hashlist",_this.config.App);
+      if(sessionStorage[routeStorage]){
+        list = _this.FnJSON(sessionStorage[routeStorage]);
+        list.push(_this.config.App);
+      }
+      sessionStorage[routeStorage] = _this.FnJSON(list);
     }
   }
 }()
