@@ -1,0 +1,135 @@
+<div id="content">
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/1.jpg" alt=""></div>
+  </div>
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/2.jpg" alt=""></div>
+  </div>
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/3.jpg" alt=""></div>
+  </div>
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/4.jpg" alt=""></div>
+  </div>
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/5.jpg" alt=""></div>
+  </div>
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/6.jpg" alt=""></div>
+  </div>
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/7.jpg" alt=""></div>
+  </div>
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/8.jpg" alt=""></div>
+  </div>
+  <div class="box">
+    <div class="box_img"><img src="./common/images/300/9.jpg" alt="我是最后一张"></div>
+  </div>
+</div>
+<script>
+  var img = document.querySelectorAll(".box_img img");
+  var imgLen = img.length;
+  var len=0;
+  [...img].forEach(item =>{
+    item.onload = function(){
+      len++;
+      if(len>=imgLen){
+        imgScroll();
+      }
+    }
+  })
+  function imgScroll () {
+    console.log("jiazai1完成");
+    App.warterfall("content","box");
+    var imgData = [{src:"1.jpg"},{src:"2.jpg"},{src:"3.jpg"},{src:"4.jpg"},{src:"5.jpg"},{src:"6.jpg"},{src:"7.jpg"},{src:"8.jpg"},{src:"9.jpg"}];
+    var imglen = imgData.length;
+    this.onscroll = function () {
+      if( App.checkLoading() ){
+        for (var i= 0;  i<imglen ; i++) {
+          var _that = this.App;
+          var oBox = document.createElement("div");
+          oBox.className = "box";
+          _that.aP.appendChild(oBox);
+          var oBox_img = document.createElement("div");
+          oBox_img.className = "box_img";
+          oBox.appendChild(oBox_img);
+          var img = new Image();
+          img.src = "./common/images/300/"+ imgData[i].src;
+          oBox_img.appendChild(img);
+        }
+        App.warterfall("content","box");
+      }
+    }
+  }
+  var App = {
+    warterfall:function (partent,child) {
+      var _this = this;
+      var aPartent = document.getElementById(partent);
+      _this.aP = aPartent;
+      var oChild = App.getChild(aPartent,child);
+      var oBwidth = oChild[0].offsetWidth;
+      var cols = ~~(document.documentElement.offsetWidth/oBwidth);
+      aPartent.style.cssText = "width:"+oBwidth*cols+"px;margin:15px auto;";
+      var minHeight = [];
+      for(var i= 0,oBlen = oChild.length;i< oBlen; i++) {
+        if( i < cols ){
+          minHeight.push(oChild[i].offsetHeight);
+        }else {
+          var minH = Math.min.apply(null,minHeight); //获取最小的图片高度
+          var index = App.getMinIndex(minHeight,minH);
+          // 设置最小高度的图片的style为绝对定位，并设置top和left
+          oChild[i].style.position = "absolute";
+          oChild[i].style.top = minH + "px";
+          oChild[i].style.left = oBwidth*index+ "px";
+          minHeight[index] += oChild[i].offsetHeight;
+        }
+      }
+    },
+    //获取想要的子节点
+    getChild:function (aPartent,child) {
+      var childArr = [];
+      var oElement = aPartent.getElementsByTagName("*");
+      [].map.call(oElement,function (item) {
+        if( item.className === child ){
+          childArr.push(item);
+        }
+      })
+      return childArr;
+    },
+    //获取图片最小的下标
+    getMinIndex:function (arr,minH) {
+      for (var i in arr) {
+        if( arr[i] === minH ){
+          return i;
+        }
+      }
+    },
+    //检查是否需要加载新的图片
+    checkLoading:function () {
+      var _this = this;
+      var oChild = App.getChild(_this.aP,"box");
+      var lastTop = oChild[oChild.length-1].offsetTop;
+      var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      var pageHeight = document.documentElement.clientHeight || document.body.clientHeight;
+      console.log("11111",pageHeight,scrollTop,lastTop);
+      if( lastTop < scrollTop + pageHeight ){
+        return true;
+      }
+    }
+  }
+ 
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+

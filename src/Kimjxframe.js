@@ -14,6 +14,8 @@
       common:"common/", //资源文件目录(js/css/images等)
 
       DomRoot:"root", //框架刷新dom的id
+
+      template:"template", //页面部分刷入点
      
       star:"app.js",  //项目初始化加载插件文件
       
@@ -50,11 +52,14 @@
       }else{
         _this.config.router.listenerPopState();
       }
-      
-      document.body.append(_this.config.appdom);// 添加容器
+
+      _this.config.appdom.setAttribute("id",_this.config.DomRoot);   //容器设置id值
+
+      document.body.appendChild(_this.config.appdom);// 添加容器到页面
 
       _this.Fnloader(); // 初始化加载js资源
-      // history.replaceState(null, null, KJ.config.u);
+ 
+      _this.Fnpage();  //初始化加载页面
     },
 
     
@@ -84,7 +89,7 @@
   
     Fnloadcss:function(url){   //加载css 1: 加载中 2:加载完成
       var _this = KJ;
-
+      
       if(_this.cssCache[url] === 1 || _this.cssCache[url] === 2)return;
       var link = _this.Fncel("link");
       _this.cssCache[url] = 1;
@@ -94,7 +99,7 @@
       }
 
       link.rel = "stylesheet";
-      link.href = url;
+      link.href = url +(_this.cachevesion?"?v="+_this.cachevesion:"");
       document.head.appendChild(link);
     },
     
@@ -103,20 +108,16 @@
     },
 
     Fnpage:function(url){  //切换标签模式加载页面 页面root节点全刷
-      var _this = KJ;
-      var u = url?url:_this.config.u;   //html页面路径
+      var _this = KJ,DomRoot;
       
-      var appdom = _this.config.appdom;
-      var DomRoot = _this.Fnfindel("#"+_this.config.DomRoot);  //在页面上找到刷入点（页面切换由此节点内容改变）
-      //console.log("_this.htmlCache---------------------------",u,url);
-      console.log("DomRoot.................",DomRoot);
-      if(!DomRoot){                                    //若果刷入点不存在则创建一个
-        var root = _this.Fncel("div");
-        root.setAttribute("id",_this.config.DomRoot);
-        appdom.appendChild(root)
+      var u = url?url:_this.config.u;   //html页面路径
+
+      if(u != _this.config.u){  //切换时当前页不是首页
+        DomRoot = _this.Fnfindel("#"+_this.config.template);
+      }else{
+        DomRoot = _this.Fnfindel("#"+_this.config.DomRoot);  //在页面上找到刷入点（页面切换由此节点内容改变）
       }
-     
-      var DomRoot = _this.Fnfindel("#"+_this.config.DomRoot);  //重新获取刷入点
+      console.log("rul",u,url,DomRoot);
 
       if(_this.htmlCache[u]){              //判断是否有缓存，有则从缓存拿取
         console.log("有缓存从缓存中拿到了");
@@ -126,19 +127,43 @@
       }
 
       _this.FngetTemplate(u,function(html){  //加载html页面
-        // console.log("加载html页面");
         DomRoot.innerHTML = html;
-        var scriptList = _this.Fnfindel("#"+_this.config.DomRoot,"script");   //获取插入页面script
+        var scriptList = _this.Fnfindel("#"+DomRoot.getAttribute("id"),"script");   //获取插入页面script
         _this.jsCache[u] = scriptList;
         _this.FnRunjs(scriptList,DomRoot);  //运行通过innerhtml插入不能运行的script   页面中的script
-        console.log("scrotpt",scriptList)
       });     
       
     },
 
-    Fntemplate:function(url){       //模板刷入 （拼接成页面）
+    // FnRepage:function(obj){  //切换标签模式加载页面 页面root节点全刷
+    //   var _this = KJ,DomRoot;
       
-    },
+
+    //   if(u != _this.config.u){  //切换时当前页不是首页
+    //     DomRoot = _this.Fnfindel("#"+_this.config.template);
+    //   }else{
+    //     DomRoot = _this.Fnfindel("#"+_this.config.DomRoot);  //在页面上找到刷入点（页面切换由此节点内容改变）
+    //   }
+    //   console.log("rul",u,url,DomRoot);
+
+    //   if(_this.htmlCache[u]){              //判断是否有缓存，有则从缓存拿取
+    //     console.log("有缓存从缓存中拿到了");
+    //     DomRoot.innerHTML = _this.htmlCache[u];
+    //     _this.FnRunjs(_this.jsCache[u],DomRoot);  //运行通过innerhtml插入不能运行的script   页面中的script
+    //     return;
+    //   }
+
+    //   _this.FngetTemplate(u,function(html){  //加载html页面
+    //     //console.log("appendchilid",html);
+    //     // DomRoot.innerHTML = html;
+    //     DomRoot.innerHTML = html;
+    //     var scriptList = _this.Fnfindel("#"+DomRoot.getAttribute("id"),"script");   //获取插入页面script
+    //     _this.jsCache[u] = scriptList;
+    //     _this.FnRunjs(scriptList,DomRoot);  //运行通过innerhtml插入不能运行的script   页面中的script
+    //     //console.log("scrotpt",scriptList)
+    //   });     
+      
+    // },
 
     Fnfindel:function(ename,child){  //ename查找元素,返回元素  child查找所有对应的子元素
       if(child){
@@ -149,14 +174,14 @@
 
     FnRunjs:function(scriptList,DomRoot){  //由于innerHTML插入的script不能运行，此方法用来运行插入的script
       var _this = KJ;
+      //console.log("box_img",DomRoot);
       for(var i=0,len=scriptList.length;i<len;i++){
         var script = _this.Fncel("script");
         script.innerHTML = scriptList[i].innerHTML;
-
-        script.onload = function(){
-          DomRoot.removeChild(script);
-        };
+        
         DomRoot.appendChild(script);
+        
+        DomRoot.removeChild(script);
       }  
     },
 
@@ -164,24 +189,21 @@
       var _this = KJ;
    
       var url = _this.config.page + u;
-
-      // console.log("u11111111111111111111111111111111111111111111111",u,url);
       var xhr = new XMLHttpRequest(); //请求  路径  异步
       xhr.open("GET",url,true); 
       xhr.onreadystatechange = function(){   //每当 readyState 改变时，就会触发 onreadystatechange 事件。
         if(xhr.readyState == 4 && xhr.status == 200){
-          //console.log("xhr.responseText",xhr.responseText);
-          _this.FnsetHTML(u,xhr.responseText);
           callback(xhr.responseText);
+          _this.FnCacheHTML(u,xhr.responseText);
         }
       }
       xhr.send();
       
     },
 
-    FnsetHTML:function(u,html){  //缓存html
+    FnCacheHTML:function(u,html){  //缓存html
       var _this = KJ;
-      // _this.config.router.route(u,html);
+      
       _this.htmlCache[u] = html;
     },
 
@@ -204,40 +226,67 @@
       loop();
     },
 
-    PageJump(el){  //页面跳转方法
+    PageJump:function(el){  //页面跳转方法
       var _this = this;
-      var routeStorage = _this.config.routeStorage;
+      var storage = sessionStorage[_this.config.routeStorage];
       var url = el.getAttribute("data-url");
-      _this.config.App= {url,count:_this.config.count};
+      _this.config.App= {url:url,count:_this.config.count};
       //location.hash = url;
       
-      _this.FnhashChange();
-      sessionStorage[routeStorage]?_this.config.count = _this.FnJSON(sessionStorage[routeStorage]).length-1:0;
+      _this.FnhashChange(_this.config.routeStorage);
+      //_this.FnMultiwindow(url);
+      storage?_this.config.count = _this.FnJSON(storage).length:"";
       // sessionStorage[routeStorage]?
       location.hash = _this.config.count;
-
-      _this.config.count++; 
       
     },
 
-    FnJSON(el){  //处理字符串和对象互转
+    FnJSON:function(el){  //处理字符串和对象互转
       if(typeof el === "object"){
         return JSON.stringify(el);
       }
       return JSON.parse(el);
     },
 
-    FnhashChange(){
+    FnhashChange:function(storage){
       var _this = this,list = [];
-      var routeStorage = _this.config.routeStorage;
-      list.push(this.config.App);
-      console.log("hashlist",_this.config.App);
-      if(sessionStorage[routeStorage]){
-        list = _this.FnJSON(sessionStorage[routeStorage]);
+      //var storage = _this.config.routeStorage;
+      list.push(_this.config.App);
+      //console.log("hashlist",_this.config.App);
+      if(sessionStorage[storage]){
+        list = _this.FnJSON(sessionStorage[storage]);
         list.push(_this.config.App);
       }
-      sessionStorage[routeStorage] = _this.FnJSON(list);
-    }
+      sessionStorage[storage] = _this.FnJSON(list);
+    },
+
+    // FnMultiwindow:function(url){             //存储打开窗口个数
+    //   var Multiwindow = [],_this= this;
+    //   if(sessionStorage["Multiwindow"]){
+    //     _this.Fnquery(url)
+    //     return;
+    //   }
+    //   Multiwindow.push({url:url,status:true});
+    //   sessionStorage["Multiwindow"] = _this.FnJSON(Multiwindow);
+    // },
+
+    // Fnquery:function(url){                   //窗口唯一 以及当前窗口状态为status:true 
+    //   var _this= this,boolen,list = _this.FnJSON(sessionStorage["Multiwindow"]);
+    //   list.forEach((item,index) => {
+    //     console.log("item",item);
+    //     if(item.url == url){
+    //       item.status = true;
+    //       boolen = true;
+    //       return;
+    //     }else{
+    //       item.status = false;
+    //     }
+    //   });
+    //   if(!boolen){
+    //     list.push({url:url,status:true})
+    //   }
+    //   sessionStorage["Multiwindow"] = _this.FnJSON(list);
+    // }
   }
 }()
 

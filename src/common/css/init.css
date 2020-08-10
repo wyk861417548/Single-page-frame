@@ -16,13 +16,23 @@ button, input, select, textarea { font-size:100%; }
 table { border-collapse:collapse; border-spacing:0; }
 
 
-body{
+/* body{
   min-width: 1235px;
-}
+} */
 
-.j_flex{display: flex;justify-content: space-around;align-items: center;}     
+/* flex布局 */
+.j_flex{display: flex;justify-content: space-around;align-items: center;} 
+.j_flex_noAline{display: flex;justify-content: space-around;}
+.j_flex_one{flex:.1;}
+.j_flex_default{flex: 1;}
+
+/* 浮动布局 */
 .j_float_left{float: left;}
 
 
-
+/* hover */
+.j_color{color: #eccc68;}
 .j_hover:hover{color: #eccc68;}
+
+/* 盒子阴影 */
+.j_box_hadow{box-shadow: 0 2px 6px 0 rgba(0,0,0,.17);}
